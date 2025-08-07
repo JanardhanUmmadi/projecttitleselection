@@ -1,0 +1,1495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Title Selection System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #74b9ff, #0984e3);
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+        }
+
+        .project-item {
+            padding: 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .project-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-item.selected {
+            border-color: #667eea;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        }
+
+        .project-item.taken {
+            background: #ffebee;
+            border-color: #f44336;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .project-item.taken::after {
+            content: " ❌ TAKEN";
+            color: #f44336;
+            font-weight: bold;
+        }
+
+        .faculty-item {
+            padding: 10px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .faculty-item:hover {
+            border-color: #667eea;
+        }
+
+        .faculty-item.selected {
+            border-color: #667eea;
+            background: linear-gradient(45deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        }
+
+        .faculty-item.full {
+            background: #ffebee;
+            border-color: #f44336;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .faculty-count {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+        }
+
+        .faculty-count.full {
+            background: #f44336;
+        }
+
+        .member-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .member-row {
+            display: contents;
+        }
+
+        .member-inputs .form-group {
+            margin-bottom: 15px;
+        }
+
+        .member-inputs input {
+            border: 2px solid #e1e1e1;
+        }
+
+        .member-inputs input:invalid {
+            border-color: #f44336;
+        }
+
+        .member-inputs input:valid {
+            border-color: #4caf50;
+        }
+
+        .required {
+            color: #f44336;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .alert.success {
+            background: #e8f5e8;
+            color: #2e7d2e;
+            border: 2px solid #4caf50;
+        }
+
+        .alert.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 2px solid #f44336;
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+
+        .switch-form a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .export-btn {
+            margin-top: 20px;
+            background: linear-gradient(45deg, #4caf50, #45a049);
+        }
+
+        .admin-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .admin-nav button {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .search-filter {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .search-filter input,
+        .search-filter select {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e1e1e1;
+        }
+
+        th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-weight: 600;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .project-status-grid,
+        .faculty-status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .status-card {
+            background: white;
+            border: 2px solid #e1e1e1;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-card.taken {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .status-card.available {
+            border-color: #4caf50;
+            background: #e8f5e8;
+        }
+
+        .status-card.full {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .detail-btn {
+            background: #2196f3;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: black;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            flex: 1;
+            text-align: center;
+            padding: 10px;
+            background: #f5f5f5;
+            margin: 0 5px;
+            border-radius: 10px;
+            position: relative;
+        }
+
+        .step.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .step.completed {
+            background: #4caf50;
+            color: white;
+        }
+
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .member-inputs {
+                grid-template-columns: 1fr;
+            }
+            
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="logout-btn" onclick="logout()" style="display: none;" id="logoutBtn">Logout</button>
+        
+        <!-- Login Form -->
+        <div id="loginForm">
+            <h1>🎓 Project Title Selection System</h1>
+            <h2>Login</h2>
+            
+            <div class="form-group">
+                <label for="loginEmail">Email:</label>
+                <input type="email" id="loginEmail" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="loginPassword">Password:</label>
+                <input type="password" id="loginPassword" required>
+            </div>
+            
+            <button class="btn" onclick="login()">Login</button>
+            
+            <div class="switch-form">
+                Don't have an account? <a href="#" onclick="showSignup()">Sign up here</a>
+                <br><br>
+                <a href="#" onclick="showAdminLogin()">Admin Login</a>
+            </div>
+        </div>
+
+        <!-- Admin Login Form -->
+        <div id="adminLoginForm" style="display: none;">
+            <h1>🎓 Project Title Selection System</h1>
+            <h2>Admin Login</h2>
+            
+            <div class="form-group">
+                <label for="adminEmail">Admin Email:</label>
+                <input type="email" id="adminEmail" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="adminPassword">Admin Password:</label>
+                <input type="password" id="adminPassword" required>
+            </div>
+            
+            <button class="btn" onclick="adminLogin()">Admin Login</button>
+            
+            <div class="switch-form">
+                <a href="#" onclick="showLogin()">Back to Student Login</a>
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <div id="signupForm" style="display: none;">
+            <h1>🎓 Project Title Selection System</h1>
+            <h2>Sign Up</h2>
+            
+            <div class="form-group">
+                <label for="signupName">Full Name:</label>
+                <input type="text" id="signupName" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="signupEmail">Email:</label>
+                <input type="email" id="signupEmail" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="signupPassword">Password:</label>
+                <input type="password" id="signupPassword" required>
+            </div>
+            
+            <button class="btn" onclick="signup()">Sign Up</button>
+            
+            <div class="switch-form">
+                Already have an account? <a href="#" onclick="showLogin()">Login here</a>
+            </div>
+        </div>
+
+        <!-- Main Application -->
+        <div id="mainApp" style="display: none;">
+            <h1>🎓 Project Title Selection System</h1>
+            
+            <div class="step-indicator">
+                <div class="step active" id="step1">1. Select Project</div>
+                <div class="step" id="step2">2. Group Details</div>
+                <div class="step" id="step3">3. Select Faculty</div>
+                <div class="step" id="step4">4. Complete</div>
+            </div>
+
+            <div id="alerts"></div>
+
+            <!-- Step 1: Project Selection -->
+            <div id="projectSelection">
+                <h2>Select a Project Title</h2>
+                <div class="project-grid" id="projectGrid"></div>
+                <button class="btn" id="nextToDetails" onclick="showGroupDetails()" disabled>Next: Enter Group Details</button>
+            </div>
+
+            <!-- Step 2: Group Details -->
+            <div id="groupDetails" style="display: none;">
+                <h2>Enter Group Details</h2>
+                
+                <div class="form-group">
+                    <label>Number of Members:</label>
+                    <select id="memberCount" onchange="generateMemberInputs()">
+                        <option value="">Select number of members</option>
+                        <option value="1">1 Member</option>
+                        <option value="2">2 Members</option>
+                        <option value="3">3 Members</option>
+                        <option value="4">4 Members</option>
+                        <option value="5">5 Members</option>
+                        <option value="6">6 Members</option>
+                    </select>
+                </div>
+
+                <div id="memberInputs"></div>
+
+                <button class="btn" onclick="showProjectSelection()">Back to Project Selection</button>
+                <button class="btn btn-secondary" id="nextToFaculty" onclick="showFacultySelection()" disabled>Next: Select Faculty</button>
+            </div>
+
+            <!-- Step 3: Faculty Selection -->
+            <div id="facultySelection" style="display: none;">
+                <h2>Select Faculty Guide</h2>
+                <div id="facultyList"></div>
+                
+                <button class="btn" onclick="showGroupDetails()">Back to Group Details</button>
+                <button class="btn btn-secondary" id="completeRegistration" onclick="completeRegistration()" disabled>Complete Registration</button>
+            </div>
+
+            <!-- Step 4: Completion -->
+            <div id="completionPage" style="display: none;">
+                <h2>🎉 Registration Complete!</h2>
+                <div class="alert success">
+                    <p>Your project has been successfully registered!</p>
+                    <p><strong>Project:</strong> <span id="selectedProjectTitle"></span></p>
+                    <p><strong>Faculty Guide:</strong> <span id="selectedFacultyName"></span></p>
+                </div>
+                
+                <button class="btn" onclick="startNewRegistration()">Register Another Project</button>
+            </div>
+        </div>
+
+        <!-- Admin Panel -->
+        <div id="adminPanel" style="display: none;">
+            <h1>🔧 Admin Dashboard</h1>
+            
+            <div class="admin-nav">
+                <button class="btn btn-secondary" onclick="showRegistrations()" id="viewRegistrationsBtn">View All Registrations</button>
+                <button class="btn" onclick="showProjectStatus()">Project Status</button>
+                <button class="btn" onclick="showFacultyStatus()">Faculty Status</button>
+                <button class="btn export-btn" onclick="exportToExcel()">📊 Export to Excel</button>
+            </div>
+
+            <!-- Registrations View -->
+            <div id="registrationsView" style="display: none;">
+                <h2>All Registrations</h2>
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <h3 id="totalRegistrations">0</h3>
+                        <p>Total Registrations</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="projectsSelected">0</h3>
+                        <p>Projects Selected</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="availableProjects">100</h3>
+                        <p>Available Projects</p>
+                    </div>
+                </div>
+                
+                <div class="search-filter">
+                    <input type="text" id="searchRegistrations" placeholder="Search by project title, faculty, or student name..." onkeyup="filterRegistrations()">
+                    <select id="facultyFilter" onchange="filterRegistrations()">
+                        <option value="">All Faculty</option>
+                    </select>
+                </div>
+                
+                <div class="table-container">
+                    <table id="registrationsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Project Title</th>
+                                <th>Faculty Guide</th>
+                                <th>Group Members</th>
+                                <th>Registration Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registrationsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Project Status View -->
+            <div id="projectStatusView" style="display: none;">
+                <h2>Project Status Overview</h2>
+                <div class="project-status-grid" id="projectStatusGrid">
+                </div>
+            </div>
+
+            <!-- Faculty Status View -->
+            <div id="facultyStatusView" style="display: none;">
+                <h2>Faculty Assignment Status</h2>
+                <div class="faculty-status-grid" id="facultyStatusGrid">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for detailed view -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 id="modalTitle">Registration Details</h2>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        // Sample project titles (100 titles)
+        const projectTitles = [
+            "AI-Powered Healthcare Management System", "Blockchain-based Voting System", "Smart Home Automation using IoT",
+            "Machine Learning for Stock Prediction", "Virtual Reality Education Platform", "Automated Testing Framework",
+            "Social Media Analytics Dashboard", "E-commerce Recommendation Engine", "Real-time Chat Application",
+            "Mobile Banking Security System", "Weather Prediction using Deep Learning", "Supply Chain Management System",
+            "Digital Library Management", "Online Food Delivery Platform", "Student Information Management System",
+            "Hospital Management System", "Inventory Management System", "Online Examination System",
+            "Traffic Management using AI", "Expense Tracking Mobile App", "Social Networking Platform",
+            "Content Management System", "Online Learning Platform", "Employee Management System",
+            "Task Management Application", "Video Streaming Platform", "Online Booking System",
+            "Customer Relationship Management", "Document Management System", "Project Management Tool",
+            "Fitness Tracking Application", "Recipe Sharing Platform", "Event Management System",
+            "News Aggregation Platform", "Language Learning App", "Music Streaming Service",
+            "Online Marketplace", "Travel Booking System", "Real Estate Management", "Job Portal Development",
+            "Online Auction Platform", "Parking Management System", "Complaint Management System",
+            "Library Book Recommendation", "Smart Agriculture System", "Energy Management System",
+            "Waste Management Platform", "Public Transport System", "Emergency Response System",
+            "Attendance Management System", "Grade Management System", "Alumni Network Platform",
+            "Blood Bank Management", "Pharmacy Management System", "Appointment Scheduling System",
+            "Fleet Management System", "Wedding Planning Platform", "Food Recipe Generator",
+            "Expense Splitting Application", "Password Manager", "Note Taking Application",
+            "PDF Generator Tool", "Image Processing System", "Voice Recognition System",
+            "Chatbot Development", "Email Marketing Platform", "Survey Management System",
+            "Quiz Application", "Blog Publishing Platform", "Forum Discussion System",
+            "Game Development Platform", "Photo Sharing Application", "Video Calling System",
+            "File Sharing Platform", "Backup Management System", "Network Monitoring Tool",
+            "Security Camera System", "Home Security Application", "Personal Finance Manager",
+            "Calorie Counting App", "Meditation and Wellness App", "Habit Tracking System",
+            "Goal Setting Platform", "Time Tracking Application", "Productivity Dashboard",
+            "Remote Work Management", "Team Collaboration Tool", "Code Review System",
+            "API Management Platform", "Database Migration Tool", "Performance Monitoring System",
+            "Log Management System", "Configuration Management", "Deployment Automation Tool",
+            "CI/CD Pipeline System", "Testing Automation Framework", "Bug Tracking System",
+            "Feature Flag Management", "A/B Testing Platform", "Analytics Dashboard"
+        ];
+
+        // Faculty members (20 faculty)
+        const facultyMembers = [
+            "Dr. Sarah Johnson", "Prof. Michael Chen", "Dr. Emily Rodriguez", "Prof. David Kim",
+            "Dr. Lisa Anderson", "Prof. Robert Taylor", "Dr. Jennifer Brown", "Prof. Mark Wilson",
+            "Dr. Amanda Davis", "Prof. Christopher Lee", "Dr. Michelle Garcia", "Prof. James Martinez",
+            "Dr. Jessica White", "Prof. Daniel Lopez", "Dr. Ashley Thomas", "Prof. Matthew Jackson",
+            "Dr. Rachel Harris", "Prof. Kevin Clark", "Dr. Lauren Lewis", "Prof. Steven Walker"
+        ];
+
+        // Application state
+        let users = JSON.parse(localStorage.getItem('users') || '{}');
+        let currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+        let selectedProjects = JSON.parse(localStorage.getItem('selectedProjects') || '{}');
+        let facultyAssignments = JSON.parse(localStorage.getItem('facultyAssignments') || '{}');
+        let registrations = JSON.parse(localStorage.getItem('registrations') || '[]');
+        
+        // Admin credentials (in real app, this would be more secure)
+        const adminCredentials = {
+            'admin@college.edu': 'admin123',
+            'coordinator@college.edu': 'coord456',
+            'Asac2025@gmail.com' : 'As@cit@123'
+        };
+        
+        let selectedProject = null;
+        let selectedFaculty = null;
+        let currentStep = 1;
+
+        // Initialize faculty assignments
+        facultyMembers.forEach(faculty => {
+            if (!facultyAssignments[faculty]) {
+                facultyAssignments[faculty] = [];
+            }
+        });
+
+        function showAlert(message, type = 'error') {
+            const alertsDiv = document.getElementById('alerts');
+            alertsDiv.innerHTML = `<div class="alert ${type}">${message}</div>`;
+            setTimeout(() => {
+                alertsDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('adminLoginForm').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function showSignup() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'block';
+            document.getElementById('adminLoginForm').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function showAdminLogin() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('adminLoginForm').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'none';
+        }
+
+        function signup() {
+            const name = document.getElementById('signupName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+
+            if (!name || !email || !password) {
+                showAlert('Please fill in all fields');
+                return;
+            }
+
+            if (users[email]) {
+                showAlert('Email already registered');
+                return;
+            }
+
+            users[email] = { name, password };
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            showAlert('Registration successful! Please login.', 'success');
+            setTimeout(showLogin, 2000);
+        }
+
+        function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            if (!email || !password) {
+                showAlert('Please enter email and password');
+                return;
+            }
+
+            if (!users[email] || users[email].password !== password) {
+                showAlert('Invalid email or password');
+                return;
+            }
+
+            currentUser = { email, name: users[email].name, type: 'student' };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            showMainApp();
+        }
+
+        function adminLogin() {
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (!email || !password) {
+                showAlert('Please enter admin email and password');
+                return;
+            }
+
+            if (!adminCredentials[email] || adminCredentials[email] !== password) {
+                showAlert('Invalid admin credentials');
+                return;
+            }
+
+            currentUser = { email, name: 'Administrator', type: 'admin' };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            showAdminPanel();
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            document.getElementById('logoutBtn').style.display = 'none';
+            showLogin();
+        }
+
+        function showMainApp() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('adminLoginForm').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('adminPanel').style.display = 'none';
+            document.getElementById('logoutBtn').style.display = 'block';
+            
+            loadProjects();
+            updateStepIndicator();
+        }
+
+        function showAdminPanel() {
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('signupForm').style.display = 'none';
+            document.getElementById('adminLoginForm').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('logoutBtn').style.display = 'block';
+            
+            showRegistrations(); // Default view
+        }
+
+        function loadProjects() {
+            const projectGrid = document.getElementById('projectGrid');
+            projectGrid.innerHTML = '';
+
+            projectTitles.forEach((title, index) => {
+                const projectItem = document.createElement('div');
+                projectItem.className = 'project-item';
+                projectItem.innerHTML = `<strong>Project ${index + 1}:</strong> ${title}`;
+                
+                if (selectedProjects[title]) {
+                    projectItem.classList.add('taken');
+                    projectItem.style.pointerEvents = 'none';
+                } else {
+                    projectItem.onclick = () => selectProject(title, projectItem);
+                }
+                
+                projectGrid.appendChild(projectItem);
+            });
+        }
+
+        function selectProject(title, element) {
+            // Remove previous selection
+            document.querySelectorAll('.project-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            selectedProject = title;
+            element.classList.add('selected');
+            document.getElementById('nextToDetails').disabled = false;
+        }
+
+        function showGroupDetails() {
+            if (!selectedProject) {
+                showAlert('Please select a project first');
+                return;
+            }
+            
+            document.getElementById('projectSelection').style.display = 'none';
+            document.getElementById('groupDetails').style.display = 'block';
+            currentStep = 2;
+            updateStepIndicator();
+        }
+
+        function showProjectSelection() {
+            document.getElementById('projectSelection').style.display = 'block';
+            document.getElementById('groupDetails').style.display = 'none';
+            document.getElementById('facultySelection').style.display = 'none';
+            currentStep = 1;
+            updateStepIndicator();
+        }
+
+        function generateMemberInputs() {
+            const count = parseInt(document.getElementById('memberCount').value);
+            const container = document.getElementById('memberInputs');
+            
+            if (!count) {
+                container.innerHTML = '';
+                document.getElementById('nextToFaculty').disabled = true;
+                return;
+            }
+            
+            let html = '<div class="member-inputs">';
+            for (let i = 1; i <= count; i++) {
+                html += `
+                    <div class="form-group">
+                        <label for="member${i}Name">Member ${i} Name <span class="required">*</span>:</label>
+                        <input type="text" id="member${i}Name" required placeholder="Enter full name" onchange="checkGroupDetailsComplete()" oninput="validateInput(this)">
+                    </div>
+                    <div class="form-group">
+                        <label for="member${i}Reg">Registration Number <span class="required">*</span>:</label>
+                        <input type="text" id="member${i}Reg" required placeholder="Enter registration number" onchange="checkGroupDetailsComplete()" oninput="validateInput(this)">
+                    </div>
+                    <div class="form-group">
+                        <label for="member${i}Phone">Phone Number <span class="required">*</span>:</label>
+                        <input type="tel" id="member${i}Phone" required placeholder="Enter phone number" pattern="[0-9]{10}" onchange="checkGroupDetailsComplete()" oninput="validateInput(this)">
+                    </div>
+                `;
+            }
+            html += '</div>';
+            
+            container.innerHTML = html;
+            document.getElementById('nextToFaculty').disabled = true;
+        }
+
+        function validateInput(input) {
+            const value = input.value.trim();
+            
+            // Remove any previous error styling
+            input.style.borderColor = '';
+            
+            // Check if required field is empty
+            if (input.required && !value) {
+                input.style.borderColor = '#f44336';
+                return false;
+            }
+            
+            // Validate phone number
+            if (input.type === 'tel' && value) {
+                const phoneRegex = /^[0-9]{10}$/;
+                if (!phoneRegex.test(value)) {
+                    input.style.borderColor = '#f44336';
+                    return false;
+                }
+            }
+            
+            // Validate registration number (basic check - not empty and has reasonable length)
+            if (input.id.includes('Reg') && value) {
+                if (value.length < 3) {
+                    input.style.borderColor = '#f44336';
+                    return false;
+                }
+            }
+            
+            // Validate name (basic check - not empty and contains only letters and spaces)
+            if (input.id.includes('Name') && value) {
+                const nameRegex = /^[a-zA-Z\s]+$/;
+                if (!nameRegex.test(value)) {
+                    input.style.borderColor = '#f44336';
+                    return false;
+                }
+            }
+            
+            // If all validations pass
+            input.style.borderColor = '#4caf50';
+            return true;
+        }
+
+        function checkGroupDetailsComplete() {
+            const count = parseInt(document.getElementById('memberCount').value);
+            let complete = true;
+            let allValid = true;
+            
+            for (let i = 1; i <= count; i++) {
+                const nameInput = document.getElementById(`member${i}Name`);
+                const regInput = document.getElementById(`member${i}Reg`);
+                const phoneInput = document.getElementById(`member${i}Phone`);
+                
+                const name = nameInput.value.trim();
+                const reg = regInput.value.trim();
+                const phone = phoneInput.value.trim();
+                
+                // Check if any field is empty
+                if (!name || !reg || !phone) {
+                    complete = false;
+                }
+                
+                // Validate each input
+                if (!validateInput(nameInput) || !validateInput(regInput) || !validateInput(phoneInput)) {
+                    allValid = false;
+                }
+            }
+            
+            document.getElementById('nextToFaculty').disabled = !complete || !allValid;
+            
+            // Show validation message
+            if (!complete) {
+                showValidationMessage('Please fill in all required fields for all members.');
+            } else if (!allValid) {
+                showValidationMessage('Please ensure all fields are filled correctly. Phone numbers should be 10 digits, names should contain only letters, and registration numbers should be at least 3 characters.');
+            } else {
+                hideValidationMessage();
+            }
+        }
+
+        function showValidationMessage(message) {
+            let validationDiv = document.getElementById('validationMessage');
+            if (!validationDiv) {
+                validationDiv = document.createElement('div');
+                validationDiv.id = 'validationMessage';
+                validationDiv.className = 'alert error';
+                validationDiv.style.marginTop = '15px';
+                document.getElementById('memberInputs').appendChild(validationDiv);
+            }
+            validationDiv.innerHTML = message;
+            validationDiv.style.display = 'block';
+        }
+
+        function hideValidationMessage() {
+            const validationDiv = document.getElementById('validationMessage');
+            if (validationDiv) {
+                validationDiv.style.display = 'none';
+            }
+        }
+
+        function showFacultySelection() {
+            if (!validateGroupDetails()) {
+                return; // Error message will be shown by validateGroupDetails()
+            }
+            
+            document.getElementById('groupDetails').style.display = 'none';
+            document.getElementById('facultySelection').style.display = 'block';
+            currentStep = 3;
+            updateStepIndicator();
+            loadFaculty();
+        }
+
+        function validateGroupDetails() {
+            const count = parseInt(document.getElementById('memberCount').value);
+            
+            for (let i = 1; i <= count; i++) {
+                const nameInput = document.getElementById(`member${i}Name`);
+                const regInput = document.getElementById(`member${i}Reg`);
+                const phoneInput = document.getElementById(`member${i}Phone`);
+                
+                const name = nameInput.value.trim();
+                const reg = regInput.value.trim();
+                const phone = phoneInput.value.trim();
+                
+                // Check if any field is empty
+                if (!name || !reg || !phone) {
+                    showAlert(`Please fill in all details for Member ${i}`);
+                    return false;
+                }
+                
+                // Validate name (only letters and spaces)
+                const nameRegex = /^[a-zA-Z\s]+$/;
+                if (!nameRegex.test(name)) {
+                    showAlert(`Please enter a valid name for Member ${i} (only letters and spaces allowed)`);
+                    nameInput.focus();
+                    return false;
+                }
+                
+                // Validate registration number (at least 3 characters)
+                if (reg.length < 3) {
+                    showAlert(`Registration number for Member ${i} should be at least 3 characters long`);
+                    regInput.focus();
+                    return false;
+                }
+                
+                // Validate phone number (exactly 10 digits)
+                const phoneRegex = /^[0-9]{10}$/;
+                if (!phoneRegex.test(phone)) {
+                    showAlert(`Please enter a valid 10-digit phone number for Member ${i}`);
+                    phoneInput.focus();
+                    return false;
+                }
+            }
+            
+            // Check for duplicate registration numbers
+            const regNumbers = [];
+            for (let i = 1; i <= count; i++) {
+                const reg = document.getElementById(`member${i}Reg`).value.trim();
+                if (regNumbers.includes(reg)) {
+                    showAlert('Duplicate registration numbers are not allowed');
+                    return false;
+                }
+                regNumbers.push(reg);
+            }
+            
+            return true;
+        }
+
+        function loadFaculty() {
+            const facultyList = document.getElementById('facultyList');
+            facultyList.innerHTML = '';
+
+            facultyMembers.forEach(faculty => {
+                const assignedCount = facultyAssignments[faculty].length;
+                const facultyItem = document.createElement('div');
+                facultyItem.className = 'faculty-item';
+                
+                if (assignedCount >= 5) {
+                    facultyItem.classList.add('full');
+                    facultyItem.innerHTML = `
+                        <span>${faculty}</span>
+                        <span class="faculty-count full">${assignedCount}/5 - FULL</span>
+                    `;
+                } else {
+                    facultyItem.innerHTML = `
+                        <span>${faculty}</span>
+                        <span class="faculty-count">${assignedCount}/5</span>
+                    `;
+                    facultyItem.onclick = () => selectFaculty(faculty, facultyItem);
+                }
+                
+                facultyList.appendChild(facultyItem);
+            });
+        }
+
+        function selectFaculty(faculty, element) {
+            // Remove previous selection
+            document.querySelectorAll('.faculty-item.selected').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            selectedFaculty = faculty;
+            element.classList.add('selected');
+            document.getElementById('completeRegistration').disabled = false;
+        }
+
+        function completeRegistration() {
+            if (!selectedProject || !selectedFaculty) {
+                showAlert('Please complete all steps');
+                return;
+            }
+
+            // Get group details
+            const count = parseInt(document.getElementById('memberCount').value);
+            const members = [];
+            
+            for (let i = 1; i <= count; i++) {
+                members.push({
+                    name: document.getElementById(`member${i}Name`).value,
+                    registration: document.getElementById(`member${i}Reg`).value,
+                    phone: document.getElementById(`member${i}Phone`).value
+                });
+            }
+
+            // Create registration record
+            const registration = {
+                id: Date.now(),
+                project: selectedProject,
+                faculty: selectedFaculty,
+                members: members,
+                registeredBy: currentUser.email,
+                registeredAt: new Date().toLocaleString()
+            };
+
+            // Update data
+            selectedProjects[selectedProject] = registration.id;
+            facultyAssignments[selectedFaculty].push(registration.id);
+            registrations.push(registration);
+
+            // Save to localStorage
+            localStorage.setItem('selectedProjects', JSON.stringify(selectedProjects));
+            localStorage.setItem('facultyAssignments', JSON.stringify(facultyAssignments));
+            localStorage.setItem('registrations', JSON.stringify(registrations));
+
+            // Show completion page
+            document.getElementById('facultySelection').style.display = 'none';
+            document.getElementById('completionPage').style.display = 'block';
+            document.getElementById('selectedProjectTitle').textContent = selectedProject;
+            document.getElementById('selectedFacultyName').textContent = selectedFaculty;
+            
+            currentStep = 4;
+            updateStepIndicator();
+
+            showAlert('Registration completed successfully!', 'success');
+        }
+
+        function startNewRegistration() {
+            selectedProject = null;
+            selectedFaculty = null;
+            currentStep = 1;
+            
+            document.getElementById('completionPage').style.display = 'none';
+            document.getElementById('projectSelection').style.display = 'block';
+            document.getElementById('memberCount').value = '';
+            document.getElementById('memberInputs').innerHTML = '';
+            document.getElementById('nextToDetails').disabled = true;
+            document.getElementById('nextToFaculty').disabled = true;
+            document.getElementById('completeRegistration').disabled = true;
+            
+            loadProjects();
+            updateStepIndicator();
+        }
+
+        function updateStepIndicator() {
+            for (let i = 1; i <= 4; i++) {
+                const step = document.getElementById(`step${i}`);
+                step.classList.remove('active', 'completed');
+                
+                if (i < currentStep) {
+                    step.classList.add('completed');
+                } else if (i === currentStep) {
+                    step.classList.add('active');
+                }
+            }
+        }
+
+        function exportToExcel() {
+            if (currentUser?.type !== 'admin') {
+                showAlert('Only admin can export data');
+                return;
+            }
+
+            if (registrations.length === 0) {
+                showAlert('No registrations to export');
+                return;
+            }
+
+            const exportData = registrations.map(reg => {
+                const row = {
+                    'Registration ID': reg.id,
+                    'Project Title': reg.project,
+                    'Faculty Guide': reg.faculty,
+                    'Number of Members': reg.members.length,
+                    'Registered By': reg.registeredBy,
+                    'Registration Date': reg.registeredAt
+                };
+                
+                reg.members.forEach((member, index) => {
+                    row[`Member ${index + 1} Name`] = member.name;
+                    row[`Member ${index + 1} Registration`] = member.registration;
+                    row[`Member ${index + 1} Phone`] = member.phone;
+                });
+                
+                return row;
+            });
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Project Registrations');
+            XLSX.writeFile(wb, `Project_Registrations_${new Date().toISOString().split('T')[0]}.xlsx`);
+            
+            showAlert('Excel file exported successfully!', 'success');
+        }
+
+        // Admin Panel Functions
+        function showRegistrations() {
+            hideAllAdminViews();
+            document.getElementById('registrationsView').style.display = 'block';
+            loadRegistrationsData();
+        }
+
+        function showProjectStatus() {
+            hideAllAdminViews();
+            document.getElementById('projectStatusView').style.display = 'block';
+            loadProjectStatusData();
+        }
+
+        function showFacultyStatus() {
+            hideAllAdminViews();
+            document.getElementById('facultyStatusView').style.display = 'block';
+            loadFacultyStatusData();
+        }
+
+        function hideAllAdminViews() {
+            document.getElementById('registrationsView').style.display = 'none';
+            document.getElementById('projectStatusView').style.display = 'none';
+            document.getElementById('facultyStatusView').style.display = 'none';
+        }
+
+        function loadRegistrationsData() {
+            // Update stats
+            document.getElementById('totalRegistrations').textContent = registrations.length;
+            document.getElementById('projectsSelected').textContent = Object.keys(selectedProjects).length;
+            document.getElementById('availableProjects').textContent = 100 - Object.keys(selectedProjects).length;
+
+            // Populate faculty filter
+            const facultyFilter = document.getElementById('facultyFilter');
+            facultyFilter.innerHTML = '<option value="">All Faculty</option>';
+            facultyMembers.forEach(faculty => {
+                facultyFilter.innerHTML += `<option value="${faculty}">${faculty}</option>`;
+            });
+
+            // Load registrations table
+            loadRegistrationsTable();
+        }
+
+        function loadRegistrationsTable() {
+            const tableBody = document.getElementById('registrationsTableBody');
+            tableBody.innerHTML = '';
+
+            registrations.forEach(reg => {
+                const row = document.createElement('tr');
+                const membersList = reg.members.map(m => m.name).join(', ');
+                
+                row.innerHTML = `
+                    <td>${reg.id}</td>
+                    <td>${reg.project}</td>
+                    <td>${reg.faculty}</td>
+                    <td>${membersList} (${reg.members.length} members)</td>
+                    <td>${reg.registeredAt}</td>
+                    <td><button class="detail-btn" onclick="showRegistrationDetails(${reg.id})">View Details</button></td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function filterRegistrations() {
+            const searchTerm = document.getElementById('searchRegistrations').value.toLowerCase();
+            const facultyFilter = document.getElementById('facultyFilter').value;
+            
+            const rows = document.querySelectorAll('#registrationsTableBody tr');
+            
+            rows.forEach(row => {
+                const projectTitle = row.cells[1].textContent.toLowerCase();
+                const faculty = row.cells[2].textContent;
+                const members = row.cells[3].textContent.toLowerCase();
+                
+                const matchesSearch = projectTitle.includes(searchTerm) || 
+                                    faculty.toLowerCase().includes(searchTerm) || 
+                                    members.includes(searchTerm);
+                
+                const matchesFaculty = !facultyFilter || faculty === facultyFilter;
+                
+                row.style.display = matchesSearch && matchesFaculty ? '' : 'none';
+            });
+        }
+
+        function showRegistrationDetails(regId) {
+            const registration = registrations.find(r => r.id === regId);
+            if (!registration) return;
+
+            const modalContent = document.getElementById('modalContent');
+            modalContent.innerHTML = `
+                <p><strong>Registration ID:</strong> ${registration.id}</p>
+                <p><strong>Project Title:</strong> ${registration.project}</p>
+                <p><strong>Faculty Guide:</strong> ${registration.faculty}</p>
+                <p><strong>Registered By:</strong> ${registration.registeredBy}</p>
+                <p><strong>Registration Date:</strong> ${registration.registeredAt}</p>
+                <h3>Group Members:</h3>
+                ${registration.members.map((member, index) => `
+                    <div style="margin-bottom: 15px; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                        <strong>Member ${index + 1}:</strong><br>
+                        Name: ${member.name}<br>
+                        Registration: ${member.registration}<br>
+                        Phone: ${member.phone}
+                    </div>
+                `).join('')}
+            `;
+            
+            document.getElementById('detailModal').style.display = 'block';
+        }
+
+        function loadProjectStatusData() {
+            const grid = document.getElementById('projectStatusGrid');
+            grid.innerHTML = '';
+
+            projectTitles.forEach((title, index) => {
+                const card = document.createElement('div');
+                card.className = 'status-card';
+                
+                if (selectedProjects[title]) {
+                    card.classList.add('taken');
+                    const registration = registrations.find(r => r.id === selectedProjects[title]);
+                    card.innerHTML = `
+                        <h4>Project ${index + 1}</h4>
+                        <p><strong>${title}</strong></p>
+                        <p>Status: ❌ TAKEN</p>
+                        <p>Assigned to: ${registration?.faculty || 'Unknown'}</p>
+                        <button class="detail-btn" onclick="showRegistrationDetails(${selectedProjects[title]})">View Details</button>
+                    `;
+                } else {
+                    card.classList.add('available');
+                    card.innerHTML = `
+                        <h4>Project ${index + 1}</h4>
+                        <p><strong>${title}</strong></p>
+                        <p>Status: ✅ AVAILABLE</p>
+                    `;
+                }
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function loadFacultyStatusData() {
+            const grid = document.getElementById('facultyStatusGrid');
+            grid.innerHTML = '';
+
+            facultyMembers.forEach(faculty => {
+                const assignedCount = facultyAssignments[faculty].length;
+                const card = document.createElement('div');
+                card.className = 'status-card';
+                
+                if (assignedCount >= 5) {
+                    card.classList.add('full');
+                } else {
+                    card.classList.add('available');
+                }
+                
+                const assignedGroups = facultyAssignments[faculty].map(regId => {
+                    const reg = registrations.find(r => r.id === regId);
+                    return reg ? reg.project : 'Unknown Project';
+                });
+                
+                card.innerHTML = `
+                    <h4>${faculty}</h4>
+                    <p>Assigned Groups: ${assignedCount}/5</p>
+                    <p>Status: ${assignedCount >= 5 ? '❌ FULL' : '✅ AVAILABLE'}</p>
+                    ${assignedGroups.length > 0 ? `
+                        <div style="margin-top: 10px;">
+                            <strong>Assigned Projects:</strong>
+                            <ul style="margin: 5px 0; padding-left: 20px; font-size: 12px;">
+                                ${assignedGroups.map(project => `<li>${project}</li>`).join('')}
+                            </ul>
+                        </div>
+                    ` : '<p style="font-style: italic; color: #666;">No projects assigned yet</p>'}
+                `;
+                
+                grid.appendChild(card);
+            });
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').style.display = 'none';
+        }
+
+        // Close modal when clicking outside of it
+        window.onclick = function(event) {
+            const modal = document.getElementById('detailModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Initialize app
+        if (currentUser) {
+            if (currentUser.type === 'admin') {
+                showAdminPanel();
+            } else {
+                showMainApp();
+            }
+        } else {
+            showLogin();
+        }
+    </script>
+</body>
+</html>
